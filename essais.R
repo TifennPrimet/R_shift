@@ -23,6 +23,7 @@ tif = import("tifffile")
 skimage = import("skimage")
 py_install(packages = "matplotlib")
 py_install(packages = "scikit-image")
+plt = import("matplotlib.pyplot")
 flat = import("flatten")
 shift = import('cross_correlation_shift')
 # source_python('compileScript.py')
@@ -56,18 +57,24 @@ plotRGB(cubestackFlat, scale = 255, stretch = "lin")
 
 #MS1
 base_path = "C:/Users/tprimet/Documents/REPRISE/MS/MS1_unziped/20220519_134340"
-all_files <- list.files(base_path, pattern = "img", full.names = TRUE)
-cubestack <- stack((arrange_channels(all_files)))
-plotRGB(cubestack, scale = 255, stretch = "lin")
+all_files2 <- list.files(base_path, pattern = "img", full.names = TRUE)
+cubestack2 <- stack((arrange_channels(all_files2)))
+plotRGB(cubestack2, scale = 255, stretch = "lin")
 
 
 # band_files <- list.files(tmp, pattern = tools::file_path_sans_ext(basename(base_path)), full.names = TRUE)
 xml_PathName = "C:/Users/tprimet/Documents/REPRISE/XML/MatriceMS1.xml"
-flattened2 <- lapply(all_files, function(x) flat$flatten(x, xml_PathName))
+flattened2 <- lapply(all_files2, function(x) flat$flatten(x, xml_PathName))
 cubestackFlat <- raster::stack(lapply(flattened2, as_raster))
 
 plotRGB(cubestackFlat, scale = 255, stretch = "lin")
 #shift$cross_correlation_shift(flattened1[1],flattened2[1] )
-shiffted = lapply(flattened2, function(x) shift$cross_correlation_shift(flattened1[9], x))
+shiffted = lapply(all_files2, function(x) shift$cross_correlation_shift(all_files[9], x))
 #shiffted = lapply(shift$cross_correlation_shift,flattened1,flattened2 )
-cubestackshift <- raster::stack(lapply(shift, as_raster))
+cubestackshift <- raster::stack(lapply(shiffted, as_raster))
+
+
+vis_nir <- raster::stack(cubestack, cubestackshift)
+raster::plotRGB(vis_nir, scale = 255, stretch = "lin")
+raster::plotRGB(vis_nir, r= 16, g = 9, b= 18, scale = 4095, stretch= "lin")
+dim(vis_nir)
