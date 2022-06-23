@@ -66,59 +66,45 @@ write_cube <- function(x, file, onefile = TRUE, overwrite = TRUE, ...) {
 
 
 
-#-------------------------------------------------------------------------------flattening the MS1 folder
+#-------------------------------------------------------------------------------The function I created 
+
+
+flatten_img <- function(base, base_path,xml_PathName){
+  all_files <- list.files(base_path, pattern = "img", full.names = TRUE)
+  cubestack <- stack((arrange_channels(all_files)))
+  plotRGB(cubestack, scale = 255, stretch = "lin")
+  flattened1 <- lapply(all_files, function(x) flat$flatten(x, xml_PathName))
+  cubestackFlat <- raster::stack(lapply(flattened1, as_raster))
+  plotRGB(cubestackFlat, scale = 255, stretch = "lin")
+  base_path_flat = str_replace(base_path, "unziped", "flat")
+  base_flat= str_replace(base, "unziped", "flat")
+  if(!file.exists(base_flat)){
+    dir.create(base_flat)
+  }
+  
+  if(!file.exists(base_path_flat)){
+    dir.create(base_path_flat)
+  }
+  
+  base_path_flat = str_replace(all_files[1], "unziped", "flat")
+  base_path_flat = str_replace(base_path_flat, "_0", "")
+write_cube(cubestackFlat, base_path_flat , onefile= FALSE)   # here the problem
+}
+
+
+#----------------------flattening the MS1 folder n*20220519_134340
 base_path = "C:/Users/tprimet/Documents/REPRISE/MS/MS1_unziped/20220519_134340"
 base = "C:/Users/tprimet/Documents/REPRISE/MS/MS1_unziped"
-all_files <- list.files(base_path, pattern = "img", full.names = TRUE)
-cubestack <- stack((arrange_channels(all_files)))
-plotRGB(cubestack, scale = 255, stretch = "lin")
 xml_PathName = "C:/Users/tprimet/Documents/REPRISE/XML/MatriceMS1.xml"
-flattened1 <- lapply(all_files, function(x) flat$flatten(x, xml_PathName))
-cubestackFlat <- raster::stack(lapply(flattened1, as_raster))
-plotRGB(cubestackFlat, scale = 255, stretch = "lin")
-base_path_flat = str_replace(base_path, "unziped", "flat")
-base_flat= str_replace(base, "unziped", "flat")
-if(!file.exists(base_flat)){
-  dir.create(base_flat)
-}
+flatten_img(base, base_path, xml_PathName)
+#----------------------flattening the MS2 folder n*20220519_134340
+base_pathMS2 = "C:/Users/tprimet/Documents/REPRISE/MS/MS2_unziped/20220519_134340"
+baseMS2 = "C:/Users/tprimet/Documents/REPRISE/MS/MS2_unziped"
+#all_files2 <- list.files(base_path, pattern = "img", full.names = TRUE)
+# xml_PathName = "C:/Users/tprimet/Documents/REPRISE/XML/MatriceMS1.xml"
+flatten_img(baseMS2, base_pathMS2, xml_PathName)
 
-if(!file.exists(base_path_flat)){
-  dir.create(base_path_flat)
-}
-#currently working on this 
-base_path_flat = str_replace(all_files[1], "unziped", "flat")
-base_path_flat = str_replace(base_path_flat, "_0", "")
-write_cube(cubestackFlat, base_path_flat , onefile= FALSE)   # here the problem
-base_path_flat
-
-#-------------------------------------------------------------------------------flattening the MS2 folder (need update)
-base_path = "C:/Users/tprimet/Documents/REPRISE/MS/MS2_unziped/20220519_134340"
-base = "C:/Users/tprimet/Documents/REPRISE/MS/MS2_unziped"
-all_files2 <- list.files(base_path, pattern = "img", full.names = TRUE)
-cubestack2 <- stack((arrange_channels(all_files2)))
-plotRGB(cubestack2, scale = 255, stretch = "lin")
-xml_PathName = "C:/Users/tprimet/Documents/REPRISE/XML/MatriceMS1.xml"
-flattened2 <- lapply(all_files2, function(x) flat$flatten(x, xml_PathName))
-cubestackFlat2 <- raster::stack(lapply(flattened2, as_raster))
-
-
-base_path_flat2 = str_replace(base_path, "unziped", "flat")
-base_flat= str_replace(base, "unziped", "flat")
-if(!file.exists(base_flat)){
-  dir.create(base_flat)
-}
-
-if(!file.exists(base_path_flat2)){
-  dir.create(base_path_flat2)
-}
-base_path_flat = str_replace(all_files2[1], "unziped", "flat")
-base_path_flat = str_replace(base_path_flat, "_0", "")
-write_cube(cubestackFlat, base_path_flat , onefile= FALSE)   
-
-
-
-
-#-------------------------------------------------------------------------------Shift the files according to the 8th band
+#---------------------Shift the files according to the 8th band
 
 path = "C:/Users/tprimet/Documents/REPRISE/MS/MS2_flat/20220519_134340"
 base_path = "C:/Users/tprimet/Documents/REPRISE/MS/MS1_flat/20220519_134340"
@@ -132,9 +118,17 @@ vis_nir <- raster::stack(cubestackFlat, cubestackshift)
 raster::plotRGB(vis_nir, scale = 255, stretch = "lin")
 
 for(i in 1 : 18){
-raster::plotRGB(vis_nir, r= i, g = 9, b= 9, scale = 4095, stretch= "lin")
+raster::plotRGB(vis_nir, r= i, g = 9, b= 18, scale = 4095, stretch= "lin")
 }
 
+
+path_cube = str_replace("C:/Users/tprimet/Documents/REPRISE/MS/MS2_flat", "MS2_flat", "CUBE")
+base_path_cube = paste0(str_replace(base_path, "MS1_flat", "CUBE"), ".tiff")
+
+if(!file.exists(path_cube)){
+  dir.create(path_cube)
+}
+write_cube(vis_nir, base_path_cube)
 
 dim(vis_nir)
 
