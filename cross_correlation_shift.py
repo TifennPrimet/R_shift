@@ -32,7 +32,7 @@ def cross_correlation_shift(Path, Path_folder):
     # we first compute a raw shift between the 2 cameras
     shift, error, diffphase = phase_cross_correlation(image, offset_image, space ="real")
     print(f'Detected pixel offset (y, x): {shift}')
-    # then we refine the shift (but it's possible to just shift the image with the raw shift)
+    """# then we refine the shift (but it's possible to just shift the image with the raw shift)
     dt = 0.01
     dx = np.arange(shift[0]-1 , shift[0]+1+dt , dt)
     dy = np.arange(shift[1]-1 , shift[1]+1+dt , dt)
@@ -53,7 +53,7 @@ def cross_correlation_shift(Path, Path_folder):
             
 
     shiftx = dx[np.where(resX == np.min(np.abs(resX)))[0][0]]
-    shifty = dy[np.where(resY == np.min(np.abs(resY)))[0][0]]
+    shifty = dy[np.where(resY == np.min(np.abs(resY)))[0][0]]"""
     res =[]
     for foldername in folderToTransforme :
       offset_image = cv.imread(foldername , cv.IMREAD_UNCHANGED)
